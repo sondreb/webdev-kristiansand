@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/WebDevKristiansand" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
+    <Parameter Name="Reporting_InstanceCount" Value="1" />
+    <Parameter Name="Processing_PartitionCount" Value="1" />
+    <Parameter Name="Processing_MinReplicaSetSize" Value="1" />
+    <Parameter Name="Processing_TargetReplicaSetSize" Value="1" />
     <Parameter Name="Organizations_PartitionCount" Value="1" />
     <Parameter Name="Organizations_MinReplicaSetSize" Value="1" />
     <Parameter Name="Organizations_TargetReplicaSetSize" Value="1" />

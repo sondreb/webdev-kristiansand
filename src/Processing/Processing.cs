@@ -7,22 +7,18 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
-using Organizations.Domain.Models;
-using Organizations.Domain;
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Processing.Domain;
 
-namespace Organizations
+namespace Processing
 {
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
-    internal sealed class Organizations : StatefulService, IOrganizationsService
+    internal sealed class Processing : StatefulService, IProcessingService
     {
-        private Task<IReliableDictionary<Guid, Organization>> Items => StateManager.GetOrAddAsync<IReliableDictionary<Guid, Organization>>("Organizations");
-
-        public Organizations(StatefulServiceContext context)
+        public Processing(StatefulServiceContext context)
             : base(context)
         { }
 
@@ -56,23 +52,12 @@ namespace Organizations
 
                 using (var tx = this.StateManager.CreateTransaction())
                 {
-                    //var result = await myDictionary.TryGetValueAsync(tx, "Counter");
+                    var result = await myDictionary.TryGetValueAsync(tx, "Counter");
 
-                    //ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
-                    //    result.HasValue ? result.Value.ToString() : "Value does not exist.");
+                    ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
+                        result.HasValue ? result.Value.ToString() : "Value does not exist.");
 
-                    //await myDictionary.AddOrUpdateAsync(tx, "Counter", 0, (key, value) => ++value);
-
-                    var items = await Items;
-
-                    var organization = new Organization() {
-                        Name = "Hooli",
-                        Id = Guid.NewGuid(),
-                        Created = DateTime.UtcNow,
-                        CreatedBy = Guid.NewGuid()
-                    };
-
-                    await items.AddAsync(tx, Guid.NewGuid(), organization);
+                    await myDictionary.AddOrUpdateAsync(tx, "Counter", 0, (key, value) => ++value);
 
                     // If an exception is thrown before calling CommitAsync, the transaction aborts, all changes are 
                     // discarded, and nothing is saved to the secondary replicas.
@@ -81,42 +66,6 @@ namespace Organizations
 
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
-        }
-
-        public async Task<IEnumerable<Organization>> GetAll()
-        {
-            var items = await Items;
-
-            var result = new List<Organization>();
-
-            using (ITransaction tx = StateManager.CreateTransaction())
-            {
-                var asyncEnumerable = await items.CreateEnumerableAsync(tx);
-
-                using (var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator())
-                {
-                    while (await asyncEnumerator.MoveNextAsync(CancellationToken.None))
-                    {
-                        result.Add(asyncEnumerator.Current.Value);
-                        //if (filter(asyncEnumerator.Current.Value))
-                        //{
-                        //    matchingEntries.Add(asyncEnumerator.Current.Value);
-                        //}
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public Task<Organization> Put(Organization organization)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Organization> Delete(Guid id)
-        {
-            throw new NotImplementedException();
         }
     }
 }
