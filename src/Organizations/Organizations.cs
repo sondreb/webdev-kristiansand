@@ -10,6 +10,7 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using Organizations.Domain.Models;
 using Organizations.Domain;
 using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
 namespace Organizations
 {
@@ -33,7 +34,8 @@ namespace Organizations
         /// <returns>A collection of listeners.</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            return new ServiceReplicaListener[0];
+            return new[] { new ServiceReplicaListener((context) => new FabricTransportServiceRemotingListener(context, this)) };
+            //return new ServiceReplicaListener[0];
         }
 
         /// <summary>
@@ -54,12 +56,12 @@ namespace Organizations
 
                 using (var tx = this.StateManager.CreateTransaction())
                 {
-                    var result = await myDictionary.TryGetValueAsync(tx, "Counter");
+                    //var result = await myDictionary.TryGetValueAsync(tx, "Counter");
 
-                    ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
-                        result.HasValue ? result.Value.ToString() : "Value does not exist.");
+                    //ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
+                    //    result.HasValue ? result.Value.ToString() : "Value does not exist.");
 
-                    await myDictionary.AddOrUpdateAsync(tx, "Counter", 0, (key, value) => ++value);
+                    //await myDictionary.AddOrUpdateAsync(tx, "Counter", 0, (key, value) => ++value);
 
                     var items = await Items;
 
