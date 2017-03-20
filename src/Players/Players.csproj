@@ -9,11 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Players</RootNamespace>
     <AssemblyName>Players</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <UpdateServiceFabricManifestEnabled>true</UpdateServiceFabricManifestEnabled>
@@ -93,6 +94,10 @@
     <ProjectReference Include="..\Players.Interfaces\Players.Interfaces.csproj">
       <Project>{B5D535D6-3956-4392-93FC-707E1572B47E}</Project>
       <Name>Players.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Users.Domain\Users.Domain.csproj">
+      <Project>{0946EDBC-1B4D-4DCD-8464-0AF567F94A49}</Project>
+      <Name>Users.Domain</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

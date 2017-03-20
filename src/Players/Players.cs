@@ -7,6 +7,8 @@ using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Actors.Client;
 using Players.Interfaces;
+using Players.Interfaces.Models;
+using Users.Domain.Models;
 
 namespace Players
 {
@@ -19,7 +21,7 @@ namespace Players
     ///  - None: State is kept in memory only and not replicated.
     /// </remarks>
     [StatePersistence(StatePersistence.Persisted)]
-    internal class Players : Actor, IPlayers
+    internal class Players : Actor, IPlayersActor
     {
         /// <summary>
         /// Initializes a new instance of Players
@@ -29,6 +31,43 @@ namespace Players
         public Players(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
+        }
+
+        /// <summary>
+        /// Performs a geographic non-random movement for the user.
+        /// </summary>
+        /// <returns></returns>
+        public async Task PerformMove()
+        {
+            var position = await GetPositionState();
+            var user = await GetUserState();
+            
+            position.Latitude += 0.1;
+            position.Longitude += 0.2;
+
+            await PutPosition(position, CancellationToken.None);
+
+            ActorEventSource.Current.ActorMessage(this, "Player {0} moved to: {1}.", user, position);
+        }
+
+        /// <summary>
+        /// Get's the currenct geographical position of a player.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Position> GetPositionState()
+        {
+            var position = await StateManager.TryGetStateAsync<Position>("position");
+            return position.Value;
+        }
+
+        /// <summary>
+        /// Get's the currenct geographical position of a player.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<User> GetUserState()
+        {
+            var position = await StateManager.TryGetStateAsync<User>("user");
+            return position.Value;
         }
 
         /// <summary>
@@ -43,29 +82,17 @@ namespace Players
             // Data stored in the StateManager will be replicated for high-availability for actors that use volatile or persisted state storage.
             // Any serializable object can be saved in the StateManager.
             // For more information, see https://aka.ms/servicefabricactorsstateserialization
-
-            return this.StateManager.TryAddStateAsync("count", 0);
+            return StateManager.TryAddStateAsync("position", new Position() { Latitude = 2.0, Longitude = 2.0 });
         }
 
-        /// <summary>
-        /// TODO: Replace with your own actor method.
-        /// </summary>
-        /// <returns></returns>
-        Task<int> IPlayers.GetCountAsync(CancellationToken cancellationToken)
+        public Task PutPosition(Position position, CancellationToken cancellationToken)
         {
-            return this.StateManager.GetStateAsync<int>("count", cancellationToken);
+            return StateManager.AddOrUpdateStateAsync("position", position, (key, value) => { return position; });
         }
 
-        /// <summary>
-        /// TODO: Replace with your own actor method.
-        /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        Task IPlayers.SetCountAsync(int count, CancellationToken cancellationToken)
+        public async Task PutUser(User user)
         {
-            // Requests are not guaranteed to be processed in order nor at most once.
-            // The update function here verifies that the incoming count is greater than the current count to preserve order.
-            return this.StateManager.AddOrUpdateStateAsync("count", count, (key, value) => count > value ? count : value, cancellationToken);
+            await StateManager.AddOrUpdateStateAsync("user", user, (key, value) => { return user; });
         }
     }
 }

@@ -16,5 +16,10 @@ namespace Users.Domain.Models
 
         [DataMember]
         public string LastName { get; set; }
+
+        public override string ToString()
+        {
+            return $"{FirstName} {LastName}";
+        }
     }
 }

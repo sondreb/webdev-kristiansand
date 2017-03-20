@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
+using Players.Interfaces.Models;
+using Users.Domain.Models;
 
 namespace Players.Interfaces
 {
@@ -11,19 +13,24 @@ namespace Players.Interfaces
     /// This interface defines the methods exposed by an actor.
     /// Clients use this interface to interact with the actor that implements it.
     /// </summary>
-    public interface IPlayers : IActor
+    public interface IPlayersActor : IActor
     {
-        /// <summary>
-        /// TODO: Replace with your own actor method.
-        /// </summary>
-        /// <returns></returns>
-        Task<int> GetCountAsync(CancellationToken cancellationToken);
+        Task PutPosition(Position position, CancellationToken cancellationToken);
 
         /// <summary>
-        /// TODO: Replace with your own actor method.
+        /// Performs a geographic non-random movement for the user.
         /// </summary>
-        /// <param name="count"></param>
         /// <returns></returns>
-        Task SetCountAsync(int count, CancellationToken cancellationToken);
+        Task PerformMove();
+
+        Task PutUser(User user);
+
+        /// <summary>
+        /// Get's the currenct geographical position of a player.
+        /// </summary>
+        /// <returns></returns>
+        Task<Position> GetPositionState();
+
+        Task<User> GetUserState();
     }
 }

@@ -16,6 +16,9 @@ using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Users.Domain;
 using Users.Domain.Models;
 using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Actors;
+using Players.Interfaces;
+using Microsoft.ServiceFabric.Actors.Client;
 
 namespace Users
 {
@@ -63,6 +66,11 @@ namespace Users
             }
 
             // Create or update Player Actor.
+            ActorId actorId = new ActorId(user.Id);
+
+            var serviceClient = ActorProxy.Create<IPlayersActor>(actorId, new Uri("fabric:/WebDevKristiansand/PlayersActorService"));
+            await serviceClient.PutUser(user);
+            //await serviceClient.PerformMove();
 
             return user;
         }
@@ -79,7 +87,6 @@ namespace Users
             return new[] { new ServiceReplicaListener(this.CreateServiceRemotingListener) };
         }
 
-
         /// <summary>
         /// This is the main entry point for your service replica.
         /// This method executes when this replica of your service becomes primary and has write status.
@@ -87,35 +94,15 @@ namespace Users
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // TODO: Replace the following sample code with your own logic 
-            //       or remove this RunAsync override if it's not needed in your service.
-
-            var myDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("myDictionary");
-
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                //using (var tx = this.StateManager.CreateTransaction())
-                //{
-                //    var result = await myDictionary.TryGetValueAsync(tx, "Counter");
+                //var serviceClient = ServiceProxy.Create<IOrganizationsService>(new Uri("fabric:/WebDevKristiansand/Organizations"));
+                //var items = await serviceClient.GetAll();
+                //ServiceEventSource.Current.ServiceMessage(this.Context, "Organizations Count: " + items.Count());
 
-                //    ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
-                //        result.HasValue ? result.Value.ToString() : "Value does not exist.");
-
-                //    await myDictionary.AddOrUpdateAsync(tx, "Counter", 0, (key, value) => ++value);
-
-                //    // If an exception is thrown before calling CommitAsync, the transaction aborts, all changes are 
-                //    // discarded, and nothing is saved to the secondary replicas.
-                //    await tx.CommitAsync();
-                //}
-
-                var serviceClient = ServiceProxy.Create<IOrganizationsService>(new Uri("fabric:/WebDevKristiansand/Organizations"));
-                var items = await serviceClient.GetAll();
-
-                ServiceEventSource.Current.ServiceMessage(this.Context, "Organizations Count: " + items.Count());
-
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
             }
         }
     }
