@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Organizations\Organizations.csproj" />
+    <ProjectReference Include="..\Players\Players.csproj" />
     <ProjectReference Include="..\Processing\Processing.csproj" />
     <ProjectReference Include="..\Reporting\Reporting.csproj" />
     <ProjectReference Include="..\Users\Users.csproj" />

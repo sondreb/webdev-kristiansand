@@ -14,6 +14,8 @@ using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
 using Users.Domain;
+using Users.Domain.Models;
+using Microsoft.ServiceFabric.Data;
 
 namespace Users
 {
@@ -22,9 +24,48 @@ namespace Users
     /// </summary>
     internal sealed class Users : StatefulService, IUsersService
     {
+        private Task<IReliableDictionary<Guid, User>> Items => StateManager.GetOrAddAsync<IReliableDictionary<Guid, User>>("Users");
+
         public Users(StatefulServiceContext context)
             : base(context)
         { }
+
+        public async Task<IEnumerable<User>> GetAll()
+        {
+            var items = await Items;
+
+            var result = new List<User>();
+
+            using (ITransaction tx = StateManager.CreateTransaction())
+            {
+                var asyncEnumerable = await items.CreateEnumerableAsync(tx);
+
+                using (var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator())
+                {
+                    while (await asyncEnumerator.MoveNextAsync(CancellationToken.None))
+                    {
+                        result.Add(asyncEnumerator.Current.Value);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<User> Put(User user)
+        {
+            var collection = await Items;
+
+            using (var tx = this.StateManager.CreateTransaction())
+            {
+                await collection.AddOrUpdateAsync(tx, user.Id, user, (key, value) => { return user; });
+                await tx.CommitAsync();
+            }
+
+            // Create or update Player Actor.
+
+            return user;
+        }
 
         /// <summary>
         /// Optional override to create listeners (e.g., HTTP, Service Remoting, WCF, etc.) for this service replica to handle client or user requests.
@@ -37,6 +78,7 @@ namespace Users
         {
             return new[] { new ServiceReplicaListener(this.CreateServiceRemotingListener) };
         }
+
 
         /// <summary>
         /// This is the main entry point for your service replica.

@@ -11,5 +11,8 @@
     <Parameter Name="Users_PartitionCount" Value="1" />
     <Parameter Name="Users_MinReplicaSetSize" Value="1" />
     <Parameter Name="Users_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="PlayersActorService_PartitionCount" Value="1" />
+    <Parameter Name="PlayersActorService_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="PlayersActorService_MinReplicaSetSize" Value="1" />
   </Parameters>
 </Application>

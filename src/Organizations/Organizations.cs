@@ -65,7 +65,8 @@ namespace Organizations
 
                     var items = await Items;
 
-                    var organization = new Organization() {
+                    var organization = new Organization()
+                    {
                         Name = "Hooli",
                         Id = Guid.NewGuid(),
                         Created = DateTime.UtcNow,
@@ -109,9 +110,17 @@ namespace Organizations
             return result;
         }
 
-        public Task<Organization> Put(Organization organization)
+        public async Task<Organization> Put(Organization organization)
         {
-            throw new NotImplementedException();
+            var collection = await Items;
+
+            using (var tx = this.StateManager.CreateTransaction())
+            {
+                await collection.AddOrUpdateAsync(tx, organization.Id, organization, (key, value) => { return organization; });
+                await tx.CommitAsync();
+            }
+
+            return organization;
         }
 
         public Task<Organization> Delete(Guid id)
