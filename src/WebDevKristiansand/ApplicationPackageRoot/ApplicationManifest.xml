@@ -11,10 +11,16 @@
     <Parameter Name="Users_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Users_PartitionCount" DefaultValue="1" />
     <Parameter Name="Users_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="PlayersActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="PlayersActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="PlayersActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="PlayersPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="ReportingPkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
@@ -57,6 +63,11 @@
     <Service Name="Users">
       <StatefulService ServiceTypeName="UsersType" TargetReplicaSetSize="[Users_TargetReplicaSetSize]" MinReplicaSetSize="[Users_MinReplicaSetSize]">
         <SingletonPartition />
+      </StatefulService>
+    </Service>
+    <Service Name="PlayersActorService" GeneratedIdRef="ef14b6bb-fcad-4f33-8979-bfba9989502e|Persisted">
+      <StatefulService ServiceTypeName="PlayersActorServiceType" TargetReplicaSetSize="[PlayersActorService_TargetReplicaSetSize]" MinReplicaSetSize="[PlayersActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[PlayersActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>
